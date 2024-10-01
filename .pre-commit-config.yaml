@@ -1,0 +1,11 @@
+repos:
+  - repo: https://github.com/PyCQA/flake8
+    rev: 3.9.2
+    hooks:
+      - id: flake8
+        args: ["--config=.flake8"]
+        name: Flake8 check
+        additional_dependencies: []
+        entry: bash run_flake8.sh
+        language: system
+        pass_filenames: false

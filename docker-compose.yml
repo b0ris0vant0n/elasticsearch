@@ -1,0 +1,58 @@
+version: '3.12'
+
+volumes:
+  marketplace_postgres_data:
+    driver: local
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DATABASE_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+    volumes:
+      - ./scripts/sql:/docker-entrypoint-initdb.d
+      - marketplace_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5433:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DATABASE_NAME}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+    container_name: elasticsearch
+    environment:
+      discovery.type: single-node
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - 9200:9200
+    healthcheck:
+      test: ["CMD", "curl", "-f", "${ELASTICSEARCH}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  marketplace_service:
+    build:
+      context: .
+      dockerfile: docker/service/Dockerfile
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+    volumes:
+      - .:/path/in/container
+    depends_on:
+      elasticsearch:
+        condition: service_healthy

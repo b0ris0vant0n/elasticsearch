@@ -1,0 +1,9 @@
+SQLAlchemy
+psycopg2-binary
+Flask
+elasticsearch
+lxml
+alembic
+python-dotenv
+flake8
+
