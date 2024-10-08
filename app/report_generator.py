@@ -15,7 +15,7 @@ class ReportGenerator:
             FROM
                 sku
             WHERE
-                sku.similar_sku IS NOT NULL AND array_length(sku.similar_sku, 1) > 0
+                sku.similar_sku IS NOT NULL AND array_length(sku.similar_sku, 1) > 1
             GROUP BY
                 sku.uuid, sku.title
             LIMIT 15;
