@@ -1,15 +1,9 @@
-def build_category_map(categories):
-    category_map = {}
-    for category in categories:
-        category_id = category.get("id")
-        category_name = category.text
-        category_map[category_id] = category_name
-    return category_map
+from typing import Dict, List, Any
 
 
-def get_category_path(category_id, category_map):
-    path = []
-    current_id = category_id
+def get_category_path(category_id: int, category_map: dict) -> List[str]:
+    path: List[str] = []
+    current_id: int = category_id
     while current_id in category_map:
         category = category_map[current_id]
         path.append(category["name"])
@@ -17,9 +11,9 @@ def get_category_path(category_id, category_map):
     return path[::-1]
 
 
-def parse_offer(offer_elem, category_map):
-    category_id = int(offer_elem.findtext("categoryId"))
-    category_path = get_category_path(category_id, category_map)
+def parse_offer(offer_elem: Any, category_map: dict) -> Dict[str, Any]:
+    category_id: int = int(offer_elem.findtext("categoryId"))
+    category_path: List[str] = get_category_path(category_id, category_map)
 
     category_lvl_1 = category_path[0] if len(category_path) > 0 else None
     category_lvl_2 = category_path[1] if len(category_path) > 1 else None

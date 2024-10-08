@@ -1,5 +1,6 @@
 import logging
 from elasticsearch import Elasticsearch, NotFoundError, RequestError
+from typing import List, Dict, Any, Optional
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -15,8 +16,8 @@ except Exception as e:
     logger.error(f"Ошибка подключения к Elasticsearch: {e}")
 
 
-def index_product(sku):
-    doc = {
+def index_product(sku: Any) -> None:
+    doc: Dict[str, Any] = {
         "uuid": sku.uuid,
         "title": sku.title,
         "description": sku.description,
@@ -34,8 +35,8 @@ def index_product(sku):
         logger.error(f"Неизвестная ошибка при индексации товара с UUID {sku.uuid}: {e}")
 
 
-def search_similar_products(sku):
-    query = {
+def search_similar_products(sku: Any) -> Optional[List[Dict[str, Any]]]:
+    query: Dict[str, Any] = {
         "_source": ["uuid", "title", "description", "brand"],
         "query": {
             "bool": {
@@ -54,7 +55,7 @@ def search_similar_products(sku):
     }
     try:
         response = es.search(index="products", body=query)
-        similar_products = [hit['_source'] for hit in response['hits']['hits'][:5]]
+        similar_products: List[Dict[str, Any]] = [hit['_source'] for hit in response['hits']['hits'][:5]]
         logger.info(f"Найдено {len(similar_products)} похожих товаров для UUID {sku.uuid}")
         return similar_products
     except NotFoundError:

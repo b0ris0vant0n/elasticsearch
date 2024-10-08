@@ -13,16 +13,16 @@ logger = logging.getLogger(__name__)
 create_tables()
 session = Session()
 
-xml_file = os.getenv('XML_FILE')
+xml_file: str = os.getenv('XML_FILE')
 
-CHUNK_SIZE = int(os.getenv('CHUNK_SIZE'))
+CHUNK_SIZE: int = int(os.getenv('CHUNK_SIZE'))
 
-category_map = {}
+category_map: dict = {}
 
 
 for event, elem in ET.iterparse(xml_file, events=("end",), tag="category"):
-    category_id = int(elem.get("id"))
-    parent_id = int(elem.get("parentId")) if elem.get("parentId") else None
+    category_id: int = int(elem.get("id"))
+    parent_id: int = int(elem.get("parentId")) if elem.get("parentId") else None
     category_map[category_id] = {
         "name": elem.text,
         "parent_id": parent_id
@@ -33,8 +33,8 @@ logger.info("Загружено %d категорий", len(category_map))
 
 context = ET.iterparse(xml_file, events=("end",), tag="offer")
 
-offers = []
-total_processed = 0
+offers: list = []
+total_processed: int = 0
 
 for event, elem in context:
     product_data = parse_offer(elem, category_map)
@@ -55,7 +55,7 @@ if offers:
     session.commit()
     logger.info("Сохранено оставшихся %d товаров в базу данных", len(offers))
 
-all_skus = session.query(SKU).all()
+all_skus: list = session.query(SKU).all()
 
 for sku in all_skus:
     index_product(sku)
@@ -92,7 +92,6 @@ try:
 
     for row in result:
         similar_uuids = ', '.join([str(uuid) for uuid in row[2]])
-        print(similar_uuids)
         readme_content += f"| {row[0]} | {row[1]} | {similar_uuids} |\n"
 
     with open('README.md', 'a') as f:
